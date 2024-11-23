@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Surveillance System</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #0e0e0e;
+            text-align: center;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: auto;
+            height: 60vh;   /* Висота 60% від висоти екрану */
+            display: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            font-size: 20px;
+            padding: 15px 30px;
+            color: white;
+            background-color: #444;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Surveillance System</h1>
+    <img id="video" src="/video_feed/" alt="Live Video">
+    <button id="toggleButton">Увімкнути відео</button>
+    
+    <script>
+        const video = document.getElementById('video');
+        const toggleButton = document.getElementById('toggleButton');
+
+        toggleButton.onclick = function() {
+            if (video.style.display === 'none') {
+                video.style.display = 'block';
+                toggleButton.innerText = 'Вимкнути відео';
+            } else {
+                video.style.display = 'none';
+                toggleButton.innerText = 'Увімкнути відео';
+            }
+        };
+    </script>
+</body>
+</html>
