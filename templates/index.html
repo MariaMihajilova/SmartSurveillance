@@ -49,11 +49,19 @@
 <body>
     <h1>Smart Surveillance System</h1>
     <img id="video" src="/video_feed/" alt="Live Video">
+    <!-- Кнопка вмикання вимикання відео -->
     <button id="toggleButton">Увімкнути відео</button>
+    <!-- Кнопка для зміни активної камери -->
+    <button id="switchCamera">Перемкнути камеру</button>
     
     <script>
         const video = document.getElementById('video');
         const toggleButton = document.getElementById('toggleButton');
+        const switchCamera = document.getElementById('switchCamera');
+        const cameraInfo = document.getElementById('camera-info');
+
+        let cameraIndex = 0;
+
 
         toggleButton.onclick = function() {
             if (video.style.display === 'none') {
@@ -63,6 +71,17 @@
                 video.style.display = 'none';
                 toggleButton.innerText = 'Увімкнути відео';
             }
+        };
+
+        // Перемикання між камерами
+        switchCamera.onclick = function () {
+            cameraIndex = (cameraIndex + 1) % 3;
+            cameraInfo.innerText = `Камера: ${cameraIndex}`;
+
+            // Перезавантажуємо відео (оновлюємо URL для нового потоку)
+            const videoSrc = `/video_feed/${cameraIndex}`;
+            video.src = "";
+            video.src = videoSrc;
         };
     </script>
 </body>
