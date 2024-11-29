@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Surveillance System</title>
+    <link rel="icon" href="data:,">
     <style>
         body {
             margin: 0;
@@ -23,7 +24,7 @@
 
         img {
             width: auto;
-            height: 60vh;   /* Висота 60% від висоти екрану */
+            height: 60vh;
             display: none;
             border-radius: 10px;
             margin-bottom: 20px;
@@ -48,41 +49,105 @@
 </head>
 <body>
     <h1>Smart Surveillance System</h1>
-    <img id="video" src="/video_feed/" alt="Live Video">
+    <img id="video" src="/video_feed/0" alt="Live Video">
+    <div id="camera-info" style="color: white; margin-bottom: 10px;">Камера: 0</div>
+
     <!-- Кнопка вмикання вимикання відео -->
     <button id="toggleButton">Увімкнути відео</button>
     <!-- Кнопка для зміни активної камери -->
     <button id="switchCamera">Перемкнути камеру</button>
-    
+    <!-- Кнопка для створення скріншоту -->
+    <button id="screenshotButton">Зробити скріншот</button>
+    <!-- Канвас для скріншотів -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
     <script>
-        const video = document.getElementById('video');
-        const toggleButton = document.getElementById('toggleButton');
-        const switchCamera = document.getElementById('switchCamera');
-        const cameraInfo = document.getElementById('camera-info');
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('video');
+            const toggleButton = document.getElementById('toggleButton');
+            const switchCamera = document.getElementById('switchCamera');
+            const cameraInfo = document.getElementById('camera-info');
+            const screenshotButton = document.getElementById('screenshotButton');
+            const canvas = document.getElementById('canvas');
+            const scaleFactor = 2; // Коефіцієнт масштабування (2x, 3x, тощо)
+            let cameraIndex = 0;
+            video.style.display = 'block';
+            video.style.display = 'none';
 
-        let cameraIndex = 0;
+            // Включення/вимкнення відео
+            toggleButton.onclick = function () {
+                if (video.style.display === 'none') {
+                    video.style.display = 'block';
+                    toggleButton.innerText = 'Вимкнути відео';
+                } else {
+                    video.style.display = 'none';
+                    toggleButton.innerText = 'Увімкнути відео';
+                }
+            };
 
+            // Перемикання між камерами
+            switchCamera.onclick = function () {
+                cameraIndex = (cameraIndex + 1) % 3;
+                cameraInfo.innerText = `Камера: ${cameraIndex}`;
 
-        toggleButton.onclick = function() {
-            if (video.style.display === 'none') {
-                video.style.display = 'block';
-                toggleButton.innerText = 'Вимкнути відео';
-            } else {
-                video.style.display = 'none';
-                toggleButton.innerText = 'Увімкнути відео';
-            }
-        };
+                // Перезавантажуємо відео (оновлюємо URL для нового потоку)
+                const videoSrc = `/video_feed/${cameraIndex}`;
+                video.src = "";
+                video.src = videoSrc;
+            };
 
-        // Перемикання між камерами
-        switchCamera.onclick = function () {
-            cameraIndex = (cameraIndex + 1) % 3;
-            cameraInfo.innerText = `Камера: ${cameraIndex}`;
+            // Переконаємося, що відео готове
+            video.addEventListener('canplay', function () {
+                // Встановлюємо розміри canvas після того, як відео готове
+                canvas.width = video.videoWidth || video.clientWidth;
+                canvas.height = video.videoHeight || video.clientHeight;
+            });
 
-            // Перезавантажуємо відео (оновлюємо URL для нового потоку)
-            const videoSrc = `/video_feed/${cameraIndex}`;
-            video.src = "";
-            video.src = videoSrc;
-        };
+            // Створення скріншоту
+            screenshotButton.onclick = function () {
+                // Перевірка, чи відео доступне та відтворюється
+                if (!video || video.paused || video.ended) {
+                    console.error("Відео не активне або не відтворюється.");
+                    return;
+                }
+
+                // Встановлюємо розміри canvas за розмірами відео, якщо це ще не зроблено
+                if (canvas.width === 0 || canvas.height === 0) {
+                    canvas.width = video.videoWidth || video.clientWidth;
+                    canvas.height = video.videoHeight || video.clientHeight;
+                }
+
+                // Масштабуємо canvas для отримання більшого зображення
+                canvas.width = (video.videoWidth || video.clientWidth) * scaleFactor;
+                canvas.height = (video.videoHeight || video.clientHeight) * scaleFactor;
+
+                // Отримуємо контекст canvas
+                const ctx = canvas.getContext('2d');
+
+                // Малюємо поточний кадр відео на canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Перевірка, чи canvas не порожній перед створенням blob
+                if (canvas.width === 0 || canvas.height === 0) {
+                    console.error("Розміри canvas нульові.");
+                    return;
+                }
+
+                // Перетворюємо canvas у blob
+                canvas.toBlob(function (blob) {
+                    if (!blob) {
+                        console.error("Не вдалося створити blob");
+                        return;
+                    }
+
+                    // Створюємо посилання для завантаження
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `screenshot_${Date.now()}.png`;
+                    link.click();
+                }, 'image/png');
+            };
+        });
     </script>
 </body>
 </html>
