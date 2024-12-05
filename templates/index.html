@@ -46,12 +46,17 @@
             background-color: #666;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 </head>
 <body>
     <h1>Smart Surveillance System</h1>
     <img id="video" src="/video_feed/0" alt="Live Video">
     <div id="camera-info" style="color: white; margin-bottom: 10px;">Камера: 0</div>
 
+
+    <!-- Індикатор -->
+    <div id="indicator"></div>
     <!-- Кнопка вмикання вимикання відео -->
     <button id="toggleButton">Увімкнути відео</button>
     <!-- Кнопка для зміни активної камери -->
@@ -74,37 +79,46 @@
             video.style.display = 'block';
             video.style.display = 'none';
 
-            // Включення/вимкнення відео
-            toggleButton.onclick = function () {
-                if (video.style.display === 'none') {
-                    video.style.display = 'block';
-                    toggleButton.innerText = 'Вимкнути відео';
-                } else {
-                    video.style.display = 'none';
-                    toggleButton.innerText = 'Увімкнути відео';
-                }
-            };
+            const ctx = canvas.getContext('2d');
+            let model;
+            let cameraStatus = false;
+            const indicator = document.getElementById('indicator');
 
-            // Перемикання між камерами
-            switchCamera.onclick = function () {
-                cameraIndex = (cameraIndex + 1) % 3;
-                cameraInfo.innerText = `Камера: ${cameraIndex}`;
 
-                // Перезавантажуємо відео (оновлюємо URL для нового потоку)
-                const videoSrc = `/video_feed/${cameraIndex}`;
-                video.src = "";
-                video.src = videoSrc;
-            };
-
-            // Переконаємося, що відео готове
-            video.addEventListener('canplay', function () {
-                // Встановлюємо розміри canvas після того, як відео готове
-                canvas.width = video.videoWidth || video.clientWidth;
-                canvas.height = video.videoHeight || video.clientHeight;
+            // Завантаження моделі Coco SSD
+            cocoSsd.load().then((loadedModel) => {
+                model = loadedModel;
+                console.log('Модель завантажена');
+                startDetection();
             });
 
-            // Створення скріншоту
-            screenshotButton.onclick = function () {
+            // Функція для обробки кадрів
+            function startDetection() {
+                setInterval(async () => {
+                    if (cameraStatus) {
+                        if (video.complete && model) {
+                            // Малюємо зображення з відео на canvas
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                            // Робимо детекцію об'єктів
+                            const predictions = await model.detect(canvas);
+
+                            // Перевіряємо, чи є серед виявлених об'єктів людина
+                            const personDetected = predictions.some(prediction => prediction.class === 'person' && prediction.score > 0.5);
+
+                            if (personDetected) {
+
+                            }
+
+                            // Оновлення кольору індикатора
+                            indicator.style.backgroundColor = personDetected ? 'green' : 'red';
+                        }
+                    }
+                }, 1000); // Перевіряємо кожну секунду
+            }
+
+            // Функція для створення скріншота
+            function takeScreenshot() {
                 // Перевірка, чи відео доступне та відтворюється
                 if (!video || video.paused || video.ended) {
                     console.error("Відео не активне або не відтворюється.");
@@ -146,6 +160,40 @@
                     link.download = `screenshot_${Date.now()}.png`;
                     link.click();
                 }, 'image/png');
+            }
+
+            // Включення/вимкнення відео
+            toggleButton.onclick = function () {
+                if (video.style.display === 'none') {
+                    video.style.display = 'block';
+                    toggleButton.innerText = 'Вимкнути відео';
+                } else {
+                    video.style.display = 'none';
+                    toggleButton.innerText = 'Увімкнути відео';
+                }
+            };
+
+            // Перемикання між камерами
+            switchCamera.onclick = function () {
+                cameraIndex = (cameraIndex + 1) % 3;
+                cameraInfo.innerText = `Камера: ${cameraIndex}`;
+
+                // Перезавантажуємо відео (оновлюємо URL для нового потоку)
+                const videoSrc = `/video_feed/${cameraIndex}`;
+                video.src = "";
+                video.src = videoSrc;
+            };
+
+            // Переконаємося, що відео готове
+            video.addEventListener('canplay', function () {
+                // Встановлюємо розміри canvas після того, як відео готове
+                canvas.width = video.videoWidth || video.clientWidth;
+                canvas.height = video.videoHeight || video.clientHeight;
+            });
+
+            // Створення скріншоту
+            screenshotButton.onclick = function () {
+                takeScreenshot();
             };
         });
     </script>
