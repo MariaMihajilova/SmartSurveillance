@@ -12,7 +12,78 @@ test_results_1 = []
 test_results_2 = []
 
 
+#### Тест-Сьют 1: Основна функціональність відео ####
+# Тест-кейс 1.1: Увімкнення відео
+def test_enable_video():
+    try:
+        video = driver.find_element(By.ID, 'video')
+        toggle_button = driver.find_element(By.ID, 'toggleButton')
 
+        # Натискання на кнопку для увімкнення відео
+        toggle_button.click()
+        time.sleep(1)  # Очікування для завантаження відео
+
+        # Перевірки
+        assert video.is_displayed(), "Відео не відображається після увімкнення."
+        assert toggle_button.text == 'Вимкнути відео', "Текст кнопки не змінився на 'Вимкнути відео'."
+
+        test_results_1.append(["Увімкнення відео", "Пройдено", "Усі перевірки успішні"])
+    except Exception as e:
+        test_results_1.append(["Увімкнення відео", "Не пройдено", str(e)])
+# Тест-кейс 1.2: Вимкнення відео
+def test_disable_video():
+    try:
+        video = driver.find_element(By.ID, 'video')
+        toggle_button = driver.find_element(By.ID, 'toggleButton')
+
+        # Натискання на кнопку для вимкнення відео
+        toggle_button.click()
+        time.sleep(1)
+
+        # Перевірки
+        assert not video.is_displayed(), "Відео відображається після вимкнення."
+        assert toggle_button.text == 'Увімкнути відео', "Текст кнопки не змінився на 'Увімкнути відео'."
+
+        test_results_1.append(["Вимкнення відео", "Пройдено", "Усі перевірки успішні"])
+    except Exception as e:
+        test_results_1.append(["Вимкнення відео", "Не пройдено", str(e)])
+# Тест-кейс 1.3: Перемикання камери
+def test_switch_camera():
+    try:
+        switch_button = driver.find_element(By.ID, 'switchCamera')
+        camera_info = driver.find_element(By.ID, 'camera-info')
+
+        current_camera = camera_info.text  # Поточна камера
+
+        # Натискання на кнопку для перемикання камери
+        switch_button.click()
+        time.sleep(1)  # Очікування для зміни камери
+
+        new_camera = camera_info.text  # Нова камера
+
+        # Перевірка
+        assert current_camera != new_camera, "Камера не змінилася після натискання кнопки."
+
+        test_results_1.append(["Перемикання камери", "Пройдено", "Камера успішно змінилася"])
+    except Exception as e:
+        test_results_1.append(["Перемикання камери", "Не пройдено", str(e)])
+# Тест-кейс 1.4: Відео недоступне
+def test_video_unavailable():
+    try:
+        # Симуляція недоступного відео (припустимо, перевірка існує у вашій системі)
+        video = driver.find_element(By.ID, 'video')
+        driver.execute_script("arguments[0].src = 'invalid_source';", video)
+        time.sleep(2)  # Очікування для симуляції помилки завантаження
+
+        assert not video.is_displayed(), "Відео все ще відображається з недоступним джерелом."
+        test_results_1.append(["Відео недоступне", "Пройдено", "Відео коректно не відображається"])
+    except Exception as e:
+        test_results_1.append(["Відео недоступне", "Не пройдено", str(e)])
+# Запуск тестів
+test_enable_video()
+test_disable_video()
+test_switch_camera()
+test_video_unavailable()
 
 
 #### Тест-Сьют 2: Функціональність скріншоту ####
