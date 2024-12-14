@@ -1,3 +1,15 @@
+"""
+Django settings for SmartSurveillance project.
+
+Based on by 'django-admin startproject' using Django 2.1.2.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/2.1/topics/settings/
+
+For the full list of settings and their values, see
+https://docs.djangoproject.com/en/2.1/ref/settings/
+"""
+
 import os
 import posixpath
 from pathlib import Path
@@ -27,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'SmartSurveillance',
 ]
 
 # Middleware framework
@@ -67,10 +80,11 @@ WSGI_APPLICATION = 'SmartSurveillance.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'djongo',
+        'NAME': 'your_database_name',  # Ваша база даних
     }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -102,4 +116,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 #STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
 STATIC_ROOT = BASE_DIR / 'static'
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10 MB
+
 
