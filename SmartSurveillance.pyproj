@@ -31,6 +31,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="manage.py" />
+    <Compile Include="SmartSurveillance\apps.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="SmartSurveillance\models.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="SmartSurveillance\views.py">
       <SubType>Code</SubType>
     </Compile>
