@@ -169,6 +169,35 @@
                         return;
                     }
 
+                    // Convert blob to Base64
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        const base64Data = reader.result.split(',')[1];
+                        const data = {
+                            camera_id: cameraIndex,
+                            image: `data:image/png;base64,${base64Data}`,
+                        };
+
+                        // Send the data to the server
+                        fetch('/save-screenshot/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(data),
+                        })
+                        .then((response) => response.json())
+                        .then((data) => {
+                            if (data.message) {
+                                console.log(data.message);
+                            } else if (data.error) {
+                                console.error(data.error);
+                            }
+                        })
+                        .catch((error) => console.error('Error:', error));
+                    };
+                    reader.readAsDataURL(blob);
+
                     // Створюємо посилання для завантаження
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(blob);
